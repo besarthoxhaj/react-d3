@@ -1,6 +1,7 @@
 import React from 'react';
 import * as R from 'ramda';
 import * as d3 from 'd3';
+import memoizeOne from 'memoize-one';
 
 const PADDING = 40;
 
@@ -46,7 +47,7 @@ export default class StackedChart extends React.Component {
 
     return (
       <svg
-        style={{backgroundColor:'#f4a582'}}
+        // style={{backgroundColor:'#f4a582'}}
         width={this.props.width}
         height={this.props.height}
         ref={this.mySvgRef}
@@ -91,6 +92,12 @@ export default class StackedChart extends React.Component {
       this.mySvgGroupRef.current,
       syntheticEvent
     );
+
+    const { xScale } = this.createScales();
+
+    this.props.currValueX({
+      xValue: xScale.invert(xPos)
+    });
 
     this.setState({
       lineX: xPos
@@ -152,7 +159,7 @@ export default class StackedChart extends React.Component {
       .y1(d => yScale(d[1]));
   }
 
-  createScales() {
+  createScales = memoizeOne(() => {
 
     const startToday = new Date();
     startToday.setHours(0, 0, 0, 0);
@@ -172,5 +179,5 @@ export default class StackedChart extends React.Component {
       xScale,
       yScale
     };
-  }
+  })
 }

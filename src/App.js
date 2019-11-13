@@ -17,6 +17,7 @@ export default class App extends React.Component {
 
     this.state = {
       data: [],
+      donutData: undefined,
       colors: COLORS,
     };
   }
@@ -36,7 +37,10 @@ export default class App extends React.Component {
       return this.handleErrorGetData(errGetData);
     }
 
-    this.setState({ data });
+    this.setState({
+      data: data,
+      donutData: this.getLastDataDonutChart(data),
+    });
   }
 
   render() {
@@ -44,7 +48,7 @@ export default class App extends React.Component {
     return (
       <div className={'app-container'}>
         <h1 className={'app-title'}>
-          UK Energy Mix
+          Energy Mix
         </h1>
         <Legend
           colors={this.state.colors}
@@ -54,27 +58,37 @@ export default class App extends React.Component {
         <div className={'app-inner-container'}>
           <DonutChart
             colors={this.state.colors}
-            data={this.getLastDataDonutChart(this.state.data)}
+            data={this.state.donutData}
             onEnterArea={currData => this.onEnterArea(currData)}
             onLeaveArea={currData => this.onLeaveArea(currData)}
             name={'donut-all-data'}
           />
-          {/*
-          <DonutChart
-            colors={this.state.colors}
-            data={this.getRenewablesDonutChart(this.state.data)}
-            onEnterArea={currData => this.onEnterArea(currData)}
-            onLeaveArea={currData => this.onLeaveArea(currData)}
-            name={'donut-renewables'}
-          />
-          */}
           <StackedChart
             data={this.getDataStackedChart(this.state.data)}
             colors={this.state.colors}
+            currValueX={({xValue}) => this.updateDonutChart(xValue)}
           />
         </div>
       </div>
     );
+  }
+
+  updateDonutChart(time) {
+
+    const threshold = 60 * 15; // 15 mins
+    const unixTimeSelection = (new Date(time)).getTime() / 1000;
+
+    const nearTimeData = this.state.data.find(elm => {
+
+      const elmTimeUnix = (new Date(elm.from)).getTime() / 1000;
+      const difference = Math.abs(elmTimeUnix - unixTimeSelection);
+
+      if (difference < threshold) return elm;
+    });
+
+    this.setState({
+      donutData: nearTimeData['generationmix']
+    });
   }
 
   getLastDataDonutChart(rawData) {

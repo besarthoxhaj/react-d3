@@ -25,6 +25,7 @@ export const toStorybook = () => {
       { other: 20, solar: 50, hydro: 30, date: '2019-11-13T18:00Z' },
       { other: 30, solar: 30, hydro: 40, date: '2019-11-13T20:00Z' },
     ],
+    currValueX: value => console.log(`currValueX`, value),
   };
 
   return (

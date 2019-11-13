@@ -2,20 +2,34 @@ import React from 'react';
 import * as R from 'ramda';
 import * as d3 from 'd3';
 
-const WIDTH = 900;
-const HEIGHT = 400;
 const PADDING = 40;
 
 export default class StackedChart extends React.Component {
+
+  static defaultProps = {
+    width: 900,
+    height: 400,
+  }
 
   constructor(props) {
 
     super(props);
     this.mySvgRef = React.createRef();
+    this.mySvgGroupRef = React.createRef();
 
     this.state = {
       hasAxis: false,
+      showLine: false,
+      lineX: 0
     };
+
+    this.onMouseEnter = this.onMouseEnter.bind(this);
+    this.onMouseMove = this.onMouseMove.bind(this);
+    this.onMouseLeave = this.onMouseLeave.bind(this);
+  }
+
+  componentDidMount() {
+    this.createAxis();
   }
 
   componentDidUpdate() {
@@ -31,8 +45,19 @@ export default class StackedChart extends React.Component {
     const areaFun = this.createArea();
 
     return (
-      <svg width={WIDTH} height={HEIGHT} ref={this.mySvgRef}>
-        <g transform={`translate(${PADDING}, ${PADDING})`}>
+      <svg
+        style={{backgroundColor:'#f4a582'}}
+        width={this.props.width}
+        height={this.props.height}
+        ref={this.mySvgRef}
+      >
+        <g
+          transform={`translate(${PADDING}, ${PADDING})`}
+          ref={this.mySvgGroupRef}
+          onMouseEnter={this.onMouseEnter}
+          onMouseMove={this.onMouseMove}
+          onMouseLeave={this.onMouseLeave}
+        >
           {stack.map(currStackData => (
             <path
               key={currStackData.key}
@@ -40,9 +65,42 @@ export default class StackedChart extends React.Component {
               d={areaFun(currStackData)}
             />
           ))}
+          {this.state.showLine && (
+            <line
+              stroke="yellow"
+              strokeWidth="1"
+              y2={this.props.height - (PADDING * 2)}
+              x1={this.state.lineX}
+              x2={this.state.lineX}
+            />
+          )}
         </g>
       </svg>
     );
+  }
+
+  onMouseEnter() {
+    this.setState({
+      showLine: true
+    });
+  }
+
+  onMouseMove(syntheticEvent) {
+
+    const [ xPos ] = d3.clientPoint(
+      this.mySvgGroupRef.current,
+      syntheticEvent
+    );
+
+    this.setState({
+      lineX: xPos
+    });
+  }
+
+  onMouseLeave() {
+    this.setState({
+      showLine: false
+    });
   }
 
   createAxis() {
@@ -65,7 +123,7 @@ export default class StackedChart extends React.Component {
       .call(yAxis);
 
     d3.select(elmRef).append('g')
-      .attr('transform', `translate(${PADDING}, ${HEIGHT - PADDING})`)
+      .attr('transform', `translate(${PADDING}, ${this.props.height - PADDING})`)
       .call(xAxis);
 
     this.setState({ hasAxis: true });
@@ -104,11 +162,11 @@ export default class StackedChart extends React.Component {
 
     var xScale = d3.scaleTime()
       .domain([startToday, endToday])
-      .range([0, WIDTH - PADDING]);
+      .range([0, this.props.width - PADDING]);
 
     var yScale = d3.scaleLinear()
       .domain([0, 100])
-      .range([HEIGHT - 2 * PADDING, 0]);
+      .range([this.props.height - 2 * PADDING, 0]);
 
     return {
       xScale,

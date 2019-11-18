@@ -14,6 +14,9 @@ export const toStorybook = () => {
       '5. Time Zone': 'US/Eastern'
     },
     'Time Series (Daily)': {
+      '2019-11-23': { '1. open': '148.9300', '4. close': '148.0700' },
+      '2019-11-22': { '1. open': '148.9300', '4. close': '147.0700' },
+      '2019-11-21': { '1. open': '148.9300', '4. close': '146.9700' },
       '2019-11-20': { '1. open': '148.9300', '4. close': '145.9700' },
       '2019-11-19': { '1. open': '148.9300', '4. close': '148.9700' },
       '2019-11-18': { '1. open': '148.9300', '4. close': '146.9700' },
@@ -30,13 +33,14 @@ export const toStorybook = () => {
       '2019-11-05': { '1. open': '144.9700', '4. close': '145.4600' },
       '2019-11-04': { '1. open': '144.8300', '4. close': '144.5500' },
       '2019-11-03': { '1. open': '144.8300', '4. close': '146.5500' },
-    }
+    },
   };
 
+  const props = {};
 
-  const props = {
-    data: data
-  };
+  // global.fetch = () => new Promise(okRes => {
+  //   okRes({ json: () => new Promise(okJson => okJson(data))})
+  // });
 
   return (
     <div style={{marginTop: 50, marginLeft: 50}}>

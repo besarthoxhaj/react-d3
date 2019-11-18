@@ -196,7 +196,7 @@ export default class LineChart extends React.Component {
 
     var xAxis = d3.axisBottom()
       .scale(xScale)
-      .ticks(15);
+      .ticks(10);
 
     var yAxis = d3.axisLeft()
       .scale(yScale)
